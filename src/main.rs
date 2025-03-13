@@ -38,13 +38,17 @@ async fn hack(
     println!("got a command: {}", cmd);
     let result = Command::new("/bin/sh").arg("-c").arg(&cmd).output();
     println!("the result is: {:#?}", result);
+    let cresult = match result {
+        Ok(res) => format!("{:#?}", res.stdout),
+        Err(err) => todo!("{:#?}", err),
+    };
     ctx.send(
         poise::CreateReply::default().embed(
             serenity::CreateEmbed::new()
                 .colour(DARK_PURPLE)
                 .fields(vec![
                     ("Command", format!("```{}```", cmd), false),
-                    ("Output", format!("```{:#?}```", result), false),
+                    ("Output", format!("```{:#?}```", cresult), false),
                 ]),
         ),
     )
