@@ -39,7 +39,7 @@ async fn hack(
     let result = Command::new("/bin/sh").arg("-c").arg(&cmd).output();
     println!("the result is: {:#?}", result);
     let cresult = match result {
-        Ok(res) => format!("{:#?}", String::from_utf8_lossy(&res.stdout)),
+        Ok(res) => format!("{}", String::from_utf8_lossy(&res.stdout)),
         Err(err) => todo!("{:#?}", err),
     };
     ctx.send(
