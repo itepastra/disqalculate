@@ -13,7 +13,9 @@ async fn calc(
     ctx: Context<'_>,
     #[description = "Calculation query"] query: String,
 ) -> Result<(), Error> {
+    println!("got a query: {}", query);
     let result = ctx.data().calculator.calculate(query.clone()).await;
+    println!("the result is: {}", result);
     ctx.send(
         poise::CreateReply::default().embed(
             serenity::CreateEmbed::new()
@@ -30,7 +32,9 @@ async fn calc(
 
 #[tokio::main]
 async fn main() {
+    println!("starting disqalculate");
     let calculator = Calculator::create_calculator();
+    println!("created calculator instance");
     let token = std::env::var("DISCORD_TOKEN").expect("missing DISCORD_TOKEN");
     let intents = serenity::GatewayIntents::non_privileged();
 
@@ -48,15 +52,18 @@ async fn main() {
             })
         })
         .build();
+    println!("created framework");
 
     let client = serenity::ClientBuilder::new(token, intents)
         .framework(framework)
         .await;
+    println!("Got a client");
     client
         .expect("client couldn't be built")
         .start()
         .await
         .unwrap();
+    println!("Client returned, exiting")
 }
 
 struct Calculator {
