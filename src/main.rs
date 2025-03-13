@@ -1,5 +1,5 @@
 use poise::serenity_prelude::{self as serenity, colours::roles::DARK_PURPLE, CreateEmbed};
-use std::{process::Command, sync::Arc};
+use std::{env, process::Command, sync::Arc};
 use tokio::sync::Semaphore;
 
 struct Data {
@@ -90,6 +90,8 @@ async fn main() {
         .framework(framework)
         .await;
     println!("Got a client");
+    env::set_var("DISCORD_TOKEN", "HaHaNO");
+    println!("reset discord token");
 
     client
         .expect("client couldn't be built")
