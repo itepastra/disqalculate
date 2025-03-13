@@ -38,18 +38,35 @@
         inherit (pkgs) lib;
 
         craneLib = crane.mkLib pkgs;
-        src = craneLib.cleanCargoSource ./.;
+        fs = lib.fileset;
+        src = fs.toSource {
+          root = ./.;
+          fileset = fs.unions [
+            ./Cargo.toml
+            ./Cargo.lock
+            ./src
+            ./include
+            ./build.rs
+            ./deny.toml
+            ./LICENSE
+            ./taplo.toml
+            ./benches
+          ];
+        };
 
         # Common arguments can be set here to avoid repeating them later
         commonArgs = {
           inherit src;
           strictDeps = true;
 
+          nativeBuildInputs = [
+            pkgs.pkg-config
+          ];
+
           buildInputs =
             [
               # Add additional build inputs here
               pkgs.libqalculate
-              pkgs.pkg-config
             ]
             ++ lib.optionals pkgs.stdenv.isDarwin [
               # Additional darwin specific inputs can be set here
@@ -78,6 +95,11 @@
           commonArgs
           // {
             inherit cargoArtifacts;
+
+            # prePatch = ''
+            #   substituteInPlace src/main.rs src/disqalc.cc \
+            #     --replace-fail "disqalculate/" "source/"
+            # '';
           }
         );
       in
