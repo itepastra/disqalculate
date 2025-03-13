@@ -1,4 +1,4 @@
-use poise::serenity_prelude::{self as serenity};
+use poise::serenity_prelude::{self as serenity, colours::roles::DARK_PURPLE, CreateEmbed};
 use std::sync::Arc;
 use tokio::sync::Semaphore;
 
@@ -14,8 +14,17 @@ async fn calc(
     #[description = "Calculation query"] query: String,
 ) -> Result<(), Error> {
     let result = ctx.data().calculator.calculate(query.clone()).await;
-    let response = format!("The result of {} is {}", query, result);
-    ctx.say(response).await?;
+    ctx.send(
+        poise::CreateReply::default().embed(
+            serenity::CreateEmbed::new()
+                .colour(DARK_PURPLE)
+                .fields(vec![
+                    ("Query", format!("```{}```", query), false),
+                    ("Result", format!("```{}```", result), false),
+                ]),
+        ),
+    )
+    .await?;
     Ok(())
 }
 
