@@ -29,27 +29,6 @@ async fn calc(
     #[description = "Calculation query"] query: String,
 ) -> Result<(), Error> {
     println!("got a query: {}", query);
-    // load may leak sensitive information, so we disallow it's use
-    // if query.to_lowercase().contains("load") {
-    //     ctx.send(poise::CreateReply::default().embed(
-    //         serenity::CreateEmbed::new().colour(DARK_RED).fields(vec![
-    //             ("Query", format!("```{}```", query), false),
-    //             ("Error", "`load` is not allowed".to_string(), false),
-    //         ]),
-    //     ))
-    //     .await?;
-    //     return Ok(());
-    // }
-    // if query.to_lowercase().contains("function") {
-    //     ctx.send(poise::CreateReply::default().embed(
-    //         serenity::CreateEmbed::new().colour(DARK_RED).fields(vec![
-    //             ("Query", format!("```{}```", query), false),
-    //             ("Error", "`function` is not allowed".to_string(), false),
-    //         ]),
-    //     ))
-    //     .await?;
-    //     return Ok(());
-    // }
     let result = ctx.data().calculator.calculate(query.clone()).await;
     println!("the result is: {}", result);
     ctx.send(
