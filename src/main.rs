@@ -11,12 +11,25 @@ struct Data {
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
 
+/// Discord command for calculations
+///
+/// calculate a passed parameter by first checking if it contains illegal instructions and then
+/// passing it into [libqalculate](https://github.com/Qalculate/libqalculate)
+///
+/// # example
+///
+/// in discord with the bot in the server:
+/// ```
+/// /calc query:hex(55) + bin(1001010) to hex
+/// ```
+/// returns the value in hex: `9F`
 #[poise::command(slash_command, prefix_command)]
 async fn calc(
     ctx: Context<'_>,
     #[description = "Calculation query"] query: String,
 ) -> Result<(), Error> {
     println!("got a query: {}", query);
+    // load may leak sensitive information, so we disallow it's use
     if query.contains("load") {
         ctx.send(poise::CreateReply::default().embed(
             serenity::CreateEmbed::new().colour(DARK_RED).fields(vec![
@@ -82,12 +95,19 @@ async fn main() {
     println!("Client returned, exiting")
 }
 
+/// Thread safe version of the libqalculate calculator
+///
+/// Uses a semaphore to make sure only a single thread can ever execute on the global CALCULATOR
+/// object in libqalculate
 struct Calculator {
     // libqcalc isn't thread safe as far as I know
     semaphore: Semaphore,
 }
 
 impl Calculator {
+    /// Initialises the calculator object
+    ///
+    /// there should only ever be one at a time, otherwise I cannot guarantee it'll keep working
     pub(crate) fn create_calculator() -> Self {
         ffi::init_calculator();
         Calculator {
@@ -95,6 +115,9 @@ impl Calculator {
         }
     }
 
+    /// Calculate the result from an input string
+    ///
+    /// Uses the semaphore in [`Calculator`] to make sure only one calculation happens at once.
     pub(crate) async fn calculate(&self, input: String) -> String {
         let _permit = self
             .semaphore
@@ -105,8 +128,6 @@ impl Calculator {
     }
 }
 
-// the bridge to the C++ world, uses a helper function in [disqalc.cc](./disqalc.cc) to do
-// calculations correctly, use `Calculator` instead of these directly
 #[cxx::bridge]
 mod ffi {
     unsafe extern "C++" {
