@@ -138,3 +138,44 @@ mod ffi {
         fn do_calculation(input: String) -> String;
     }
 }
+
+#[cfg(test)]
+mod test {
+    use tokio::sync::Semaphore;
+
+    use crate::Calculator;
+    static PERMIT: Semaphore = Semaphore::const_new(1);
+
+    async fn get_calculator() -> Calculator {
+        let _permit = PERMIT.acquire().await;
+        Calculator::create_calculator()
+    }
+
+    async fn test_calculation(calc: &Calculator, input: &str, correct: &str) {
+        let result = calc.calculate(format!("{}", input)).await;
+        assert_eq!(result, correct)
+    }
+
+    macro_rules! make_calculation_tests {
+        ( $( ($name:ident, $query:literal, $correct:literal), )+ ) => {
+            $(
+                paste::item! {
+                    #[tokio::test]
+                    async fn [< test_calculate_ $name >] () {
+                        let calc = get_calculator().await;
+                        test_calculation(&calc, $query, $correct).await;
+                    }
+                }
+            )+
+        };
+    }
+
+    make_calculation_tests! {
+        (add, "1+1", "2"),
+        (sub, "1-1", "0"),
+        (mul, "7*8", "56"),
+        (div_int, "8/2", "4"),
+        (div_floor, "7//2", "3"),
+        (convert, "183 cm to m", "1.83 m"),
+    }
+}

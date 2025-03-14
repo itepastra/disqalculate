@@ -15,6 +15,6 @@ rust::String do_calculation(rust::String str) {
   po.decimalpoint_sign = std::string(".");
   std::string result = CALCULATOR->calculateAndPrint(
       std::string(str), 2000, default_user_evaluation_options, po,
-      AUTOMATIC_FRACTION_AUTO, AUTOMATIC_APPROXIMATION_OFF);
+      AUTOMATIC_FRACTION_AUTO, AUTOMATIC_APPROXIMATION_AUTO);
   return rust::String(result);
 }
