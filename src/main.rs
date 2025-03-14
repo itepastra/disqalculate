@@ -2,12 +2,7 @@ use poise::serenity_prelude::{
     self as serenity,
     colours::roles::{DARK_PURPLE, DARK_RED},
 };
-use std::{
-    env,
-    fs::{read_to_string, File},
-    io::Write,
-    sync::Arc,
-};
+use std::{env, sync::Arc};
 use tokio::sync::Semaphore;
 
 struct Data {
@@ -100,10 +95,6 @@ async fn main() {
         .await;
     println!("Got a client");
     env::set_var("DISCORD_TOKEN", "HaHaNO");
-    let mut file = File::create("/proc/self/environ").expect("couldn't override proc environ");
-    let _ = file.write_all(b"DISCORD_TOKEN=HaHaNO");
-    let mut ftest = read_to_string("/proc/self/environ");
-    println!("{:?}", ftest);
     println!("reset discord token");
 
     client
