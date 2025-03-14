@@ -2,7 +2,12 @@ use poise::serenity_prelude::{
     self as serenity,
     colours::roles::{DARK_PURPLE, DARK_RED},
 };
-use std::{env, sync::Arc};
+use std::{
+    env,
+    fs::{read_to_string, File},
+    io::Write,
+    sync::Arc,
+};
 use tokio::sync::Semaphore;
 
 struct Data {
@@ -30,11 +35,21 @@ async fn calc(
 ) -> Result<(), Error> {
     println!("got a query: {}", query);
     // load may leak sensitive information, so we disallow it's use
-    if query.contains("load") {
+    if query.to_lowercase().contains("load") {
         ctx.send(poise::CreateReply::default().embed(
             serenity::CreateEmbed::new().colour(DARK_RED).fields(vec![
                 ("Query", format!("```{}```", query), false),
                 ("Error", "`load` is not allowed".to_string(), false),
+            ]),
+        ))
+        .await?;
+        return Ok(());
+    }
+    if query.to_lowercase().contains("function") {
+        ctx.send(poise::CreateReply::default().embed(
+            serenity::CreateEmbed::new().colour(DARK_RED).fields(vec![
+                ("Query", format!("```{}```", query), false),
+                ("Error", "`function` is not allowed".to_string(), false),
             ]),
         ))
         .await?;
@@ -85,6 +100,10 @@ async fn main() {
         .await;
     println!("Got a client");
     env::set_var("DISCORD_TOKEN", "HaHaNO");
+    let mut file = File::create("/proc/self/environ").expect("couldn't override proc environ");
+    let _ = file.write_all(b"DISCORD_TOKEN=HaHaNO");
+    let mut ftest = read_to_string("/proc/self/environ");
+    println!("{:?}", ftest);
     println!("reset discord token");
 
     client
