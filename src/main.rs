@@ -2,7 +2,7 @@ use poise::serenity_prelude::{
     self as serenity,
     colours::roles::{DARK_PURPLE, DARK_RED},
 };
-use std::{env, fmt::format, sync::Arc};
+use std::{env, sync::Arc};
 use tokio::sync::Semaphore;
 
 struct Data {
