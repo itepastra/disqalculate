@@ -12,7 +12,3 @@ tokio = { version = "*", features = ["macros", "rt-multi-thread"] }
 [build-dependencies]
 cxx-build = "*"
 pkg-config = "*"
-
-[dev-dependencies]
-test-case = "*"
-tokio-test = "*"
