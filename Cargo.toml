@@ -4,10 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-cxx = "1.0"
-poise = "0.6.1"
+cxx = "*"
+poise = "*"
 tokio = { version = "*", features = ["macros", "rt-multi-thread"] }
 
 [build-dependencies]
-cxx-build = "1.0"
+cxx-build = "*"
 pkg-config = "*"
