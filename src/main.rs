@@ -152,7 +152,7 @@ mod test {
     }
 
     async fn test_calculation(calc: &Calculator, input: &str, correct: &str) {
-        let result = calc.calculate(format!("{}", input)).await;
+        let result = calc.calculate(input.to_string()).await;
         assert_eq!(result, correct)
     }
 
