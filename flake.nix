@@ -50,7 +50,6 @@
             ./deny.toml
             ./LICENSE
             ./taplo.toml
-            ./benches
           ];
         };
 
