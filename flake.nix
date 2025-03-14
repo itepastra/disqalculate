@@ -37,6 +37,14 @@
 
         inherit (pkgs) lib;
 
+        patchedQalculate = (
+          pkgs.libqalculate.overrideAttrs (oldAttrs: {
+            patches = oldAttrs.patches or [ ] ++ [
+              ./remove-io.patch
+            ];
+          })
+        );
+
         craneLib = crane.mkLib pkgs;
         fs = lib.fileset;
         src = fs.toSource {
@@ -65,7 +73,7 @@
           buildInputs =
             [
               # Add additional build inputs here
-              pkgs.libqalculate
+              patchedQalculate
             ]
             ++ lib.optionals pkgs.stdenv.isDarwin [
               # Additional darwin specific inputs can be set here
@@ -191,7 +199,7 @@
             # pkgs.ripgrep
             pkgs.wgo
             pkgs.cargo-flamegraph
-            pkgs.libqalculate
+            patchedQalculate
             pkgs.pkg-config
           ];
         };
