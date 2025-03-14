@@ -5,6 +5,12 @@ void init_calculator() {
   CALCULATOR->loadExchangeRates();
   CALCULATOR->loadGlobalDefinitions();
   CALCULATOR->loadLocalDefinitions();
+  PrintOptions po = PrintOptions();
+  po.indicate_infinite_series = true;
+  po.allow_non_usable = true;
+  po.use_unicode_signs = UNICODE_SIGNS_ON;
+  po.decimalpoint_sign = std::string(".");
+  CALCULATOR->setMessagePrintOptions(po);
 }
 
 rust::String do_calculation(rust::String str) {
