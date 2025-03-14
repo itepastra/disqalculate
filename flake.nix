@@ -39,8 +39,9 @@
 
         patchedQalculate = (
           pkgs.libqalculate.overrideAttrs (oldAttrs: {
-            patches = oldAttrs.patches or [ ] ++ [
-              ./remove-io.patch
+            configureFlags = oldAttrs.configureFlags or [ ] ++ [
+              "--disable-insecure"
+              "--enable-insecure=no"
             ];
           })
         );
