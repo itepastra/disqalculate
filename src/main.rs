@@ -1,5 +1,8 @@
-use poise::serenity_prelude::{self as serenity, colours::roles::DARK_PURPLE};
-use std::{env, sync::Arc};
+use poise::serenity_prelude::{
+    self as serenity,
+    colours::roles::{DARK_PURPLE, DARK_RED},
+};
+use std::{env, fmt::format, sync::Arc};
 use tokio::sync::Semaphore;
 
 struct Data {
@@ -14,6 +17,16 @@ async fn calc(
     #[description = "Calculation query"] query: String,
 ) -> Result<(), Error> {
     println!("got a query: {}", query);
+    if query.contains("load") {
+        ctx.send(poise::CreateReply::default().embed(
+            serenity::CreateEmbed::new().colour(DARK_RED).fields(vec![
+                ("Query", format!("```{}```", query), false),
+                ("Error", "`load` is not allowed".to_string(), false),
+            ]),
+        ))
+        .await?;
+        return Ok(());
+    }
     let result = ctx.data().calculator.calculate(query.clone()).await;
     println!("the result is: {}", result);
     ctx.send(
