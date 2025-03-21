@@ -55,6 +55,10 @@ impl Default for Grid {
     }
 }
 
+fn idx(grd: &mut [[Cell; GRID_SIZE]; GRID_SIZE], row: usize, col: usize) -> &mut Cell {
+    &mut grd[row % GRID_SIZE][col % GRID_SIZE]
+}
+
 impl Grid {
     fn add_police<T: rand::Rng>(&mut self, rng: &mut T, probability: f64, efficiency: f32) {
         for row in 0..GRID_SIZE {
@@ -77,15 +81,14 @@ impl Grid {
             for col in 0..GRID_SIZE {
                 let current = self.cells[row][col];
                 let move_weights = (5, 5, 5, 5, 5);
-                new[row][col].drunkards -= current.drunkards * (1.0 - 1.0 / move_weights.4 as f32);
-                new[(row + GRID_SIZE - 1) % GRID_SIZE][col].drunkards +=
+                idx(&mut new, row, col).drunkards -=
+                    current.drunkards * (1.0 - 1.0 / move_weights.4 as f32);
+                idx(&mut new, row + GRID_SIZE - 1, col).drunkards +=
                     current.drunkards / move_weights.0 as f32;
-                new[(row + 1) % GRID_SIZE][col].drunkards +=
-                    current.drunkards / move_weights.1 as f32;
-                new[row][(col + GRID_SIZE - 1) % GRID_SIZE].drunkards +=
+                idx(&mut new, row + 1, col).drunkards += current.drunkards / move_weights.1 as f32;
+                idx(&mut new, row, col + GRID_SIZE - 1).drunkards +=
                     current.drunkards / move_weights.2 as f32;
-                new[row][(col + 1) % GRID_SIZE].drunkards +=
-                    current.drunkards / move_weights.3 as f32;
+                idx(&mut new, row, col + 1).drunkards += current.drunkards / move_weights.3 as f32;
             }
         }
         let mut acc = 0.0;
