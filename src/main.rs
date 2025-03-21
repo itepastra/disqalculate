@@ -2,7 +2,7 @@ use std::{fmt::Display, thread::sleep, time::Duration};
 
 use color_print::cwrite;
 
-const GRID_SIZE: usize = 61;
+const GRID_SIZE: usize = 30;
 #[derive(Clone, Copy)]
 struct Cell {
     drunkards: f32,
@@ -54,6 +54,7 @@ impl Default for Grid {
         }
     }
 }
+
 impl Grid {
     fn add_police<T: rand::Rng>(&mut self, rng: &mut T, probability: f64, efficiency: f32) {
         for row in 0..GRID_SIZE {
@@ -75,37 +76,29 @@ impl Grid {
         for row in 0..GRID_SIZE {
             for col in 0..GRID_SIZE {
                 let current = self.cells[row][col];
-                let move_weights =
-                    match (row > 0, row < GRID_SIZE - 1, col > 0, col < GRID_SIZE - 1) {
-                        (true, true, true, true) => (5, 5, 5, 5, 5),
-                        (true, true, true, false) => (4, 4, 4, 0, 4),
-                        (true, true, false, true) => (4, 4, 0, 4, 4),
-                        (true, false, true, true) => (4, 0, 4, 4, 4),
-                        (false, true, true, true) => (0, 4, 4, 4, 4),
-                        (true, true, false, false) => (3, 3, 0, 0, 3),
-                        (true, false, true, false) => (3, 0, 3, 0, 3),
-                        (true, false, false, true) => (3, 0, 0, 3, 3),
-                        (false, true, true, false) => (0, 3, 3, 0, 3),
-                        (false, true, false, true) => (0, 3, 0, 3, 3),
-                        (false, false, true, true) => (0, 0, 3, 3, 3),
-                        _ => unreachable!("grid too small"),
-                    };
+                let move_weights = (5, 5, 5, 5, 5);
                 new[row][col].drunkards -= current.drunkards * (1.0 - 1.0 / move_weights.4 as f32);
-                if move_weights.0 > 0 {
-                    new[row - 1][col].drunkards += current.drunkards / move_weights.0 as f32
-                }
-                if move_weights.1 > 0 {
-                    new[row + 1][col].drunkards += current.drunkards / move_weights.1 as f32
-                }
-                if move_weights.2 > 0 {
-                    new[row][col - 1].drunkards += current.drunkards / move_weights.2 as f32
-                }
-                if move_weights.3 > 0 {
-                    new[row][col + 1].drunkards += current.drunkards / move_weights.3 as f32
-                }
+                new[(row + GRID_SIZE - 1) % GRID_SIZE][col].drunkards +=
+                    current.drunkards / move_weights.0 as f32;
+                new[(row + 1) % GRID_SIZE][col].drunkards +=
+                    current.drunkards / move_weights.1 as f32;
+                new[row][(col + GRID_SIZE - 1) % GRID_SIZE].drunkards +=
+                    current.drunkards / move_weights.2 as f32;
+                new[row][(col + 1) % GRID_SIZE].drunkards +=
+                    current.drunkards / move_weights.3 as f32;
             }
         }
         let mut acc = 0.0;
+
+        for row in 0..GRID_SIZE {
+            for col in 0..GRID_SIZE {
+                // if I find a police
+                if self.cells[row][col].police_eff <= 0.0 {
+                    continue;
+                }
+                // check the cells around
+            }
+        }
 
         for row in 0..GRID_SIZE {
             for col in 0..GRID_SIZE {
@@ -129,7 +122,7 @@ fn main() {
     let mut grid = Grid::default();
     let mut scaling = 1.0;
     let mut iter = 0;
-    grid.add_police(&mut rngen, 0.1, 0.3);
+    grid.add_police(&mut rngen, 0.01, 1.0);
     grid.add_drunkards(GRID_SIZE / 2, GRID_SIZE / 2, 1.0);
     loop {
         println!("{}", grid);
