@@ -54,8 +54,6 @@
             ./Cargo.toml
             ./Cargo.lock
             ./src
-            ./include
-            ./build.rs
             ./deny.toml
             ./LICENSE
             ./taplo.toml
